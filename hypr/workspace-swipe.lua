@@ -70,6 +70,38 @@ local function restore()
   end
 end
 
+-- Omarchy gives each monitor ten workspace slots, ids block * 10 + slot.
+local SLOTS = 10
+
+-- Next (or previous) workspace without wrapping. Past the last one it opens
+-- the next empty slot, unless the current workspace is itself empty. Before the
+-- first one it stays put.
+local function go(forward)
+  local workspace = hl.get_active_workspace()
+  if not workspace or workspace.special then
+    return
+  end
+  local block = (workspace.id - 1) // SLOTS
+  local monitor = workspace.monitor and workspace.monitor.name
+  local target = nil
+  for _, other in ipairs(hl.get_workspaces()) do
+    if not other.special and other.id > 0 and (other.id - 1) // SLOTS == block
+      and other.monitor and other.monitor.name == monitor then
+      if forward and other.id > workspace.id and (not target or other.id < target) then
+        target = other.id
+      elseif not forward and other.id < workspace.id and (not target or other.id > target) then
+        target = other.id
+      end
+    end
+  end
+  if not target and forward and workspace.windows > 0 and workspace.id < block * SLOTS + SLOTS then
+    target = workspace.id + 1
+  end
+  if target then
+    hl.dispatch(o.workspaces.focus(target - block * SLOTS))
+  end
+end
+
 local function begin(event)
   local monitor = hl.get_active_monitor()
   local workspace = hl.get_active_workspace()
@@ -107,7 +139,7 @@ local function finish(event)
   restore()
   state = nil
   if committed then
-    hl.dispatch(hl.dsp.focus({ workspace = forward and "m+1" or "m-1" }))
+    go(forward)
   end
 end
 
