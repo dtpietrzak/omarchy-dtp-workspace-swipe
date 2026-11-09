@@ -8,8 +8,8 @@
 -- This replaces the stock `workspace` gesture, which cannot report progress.
 
 local FINGERS = 4
-local COMMIT = 0.15 -- share of the screen width that commits the swipe
-local FADE_TO = 0.75 -- opacity reached just before COMMIT
+local COMMIT = 0.075 -- share of the screen width that commits the swipe
+local FADE_TO = 0.9 -- opacity reached just before COMMIT
 local COMMITTED = 0.5 -- opacity once COMMIT is reached
 -- Touchpad delta units per pixel of screen width. Raise it for a swipe that
 -- needs less finger travel.
