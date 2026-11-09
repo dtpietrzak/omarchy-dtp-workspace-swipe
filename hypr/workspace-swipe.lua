@@ -42,44 +42,14 @@ local function opacity_for(progress)
   return 1 - (1 - FADE_TO) * (progress / COMMIT)
 end
 
--- Read each window's own opacity so the fade can be undone exactly. One
--- hyprctl call for the whole workspace.
-local function read_originals(windows)
-  local originals = {}
-  local props = { "opacity", "opacity_inactive", "opacity_override", "opacity_inactive_override" }
-  local batch = {}
+-- Hyprland runs these callbacks itself, so calling hyprctl from one would wait
+-- on Hyprland forever. The fade therefore only sets a value and restores it to 1.
+local function track(windows)
+  local entries = {}
   for _, window in ipairs(windows) do
-    for _, prop in ipairs(props) do
-      batch[#batch + 1] = string.format("getprop address:%s %s", window.address, prop)
-    end
-    originals[#originals + 1] = { window = window, opacity = 1, inactive = 1, override = false, inactive_override = false }
+    entries[#entries + 1] = { window = window }
   end
-  if #batch == 0 then
-    return originals
-  end
-
-  local ok, lines = pcall(function()
-    local pipe = assert(io.popen("hyprctl --batch '" .. table.concat(batch, " ; ") .. "' 2>/dev/null"))
-    local out = {}
-    for line in pipe:lines() do
-      -- hyprctl separates batched replies with blank lines.
-      if line:match("%S") then
-        out[#out + 1] = line:match("^%s*(.-)%s*$")
-      end
-    end
-    pipe:close()
-    return out
-  end)
-  if ok and #lines >= #batch then
-    for i, entry in ipairs(originals) do
-      local base = (i - 1) * #props
-      entry.opacity = tonumber(lines[base + 1]) or 1
-      entry.inactive = tonumber(lines[base + 2]) or 1
-      entry.override = lines[base + 3] == "true"
-      entry.inactive_override = lines[base + 4] == "true"
-    end
-  end
-  return originals
+  return entries
 end
 
 local function set_opacity(window, prop, value)
@@ -88,15 +58,15 @@ end
 
 local function apply(factor)
   for _, entry in ipairs(state.windows) do
-    set_opacity(entry.window, "opacity", entry.opacity * factor)
-    set_opacity(entry.window, "opacity_inactive", entry.inactive * factor)
+    set_opacity(entry.window, "opacity", factor)
+    set_opacity(entry.window, "opacity_inactive", factor)
   end
 end
 
 local function restore()
   for _, entry in ipairs(state.windows) do
-    set_opacity(entry.window, "opacity", entry.opacity)
-    set_opacity(entry.window, "opacity_inactive", entry.inactive)
+    set_opacity(entry.window, "opacity", 1)
+    set_opacity(entry.window, "opacity_inactive", 1)
   end
 end
 
@@ -111,7 +81,7 @@ local function begin(event)
     width = screen_width(monitor),
     travel = 0,
     factor = 1,
-    windows = read_originals(windows),
+    windows = track(windows),
   }
   state.travel = event.delta.x * SENSITIVITY
 end
