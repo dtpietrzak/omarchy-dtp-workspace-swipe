@@ -2,7 +2,7 @@
 
 A four finger swipe between workspaces on Omarchy (Hyprland 0.56+), with a fade.
 
-- The current workspace fades from 100% to 90% over the first 7.5% of the screen width, then drops to 50% at 7.5%.
+- The current workspace fades from 100% to 95% over the first 7.5% of the screen width, then drops to 50% at 7.5%.
 - Letting go at 7.5% or more switches to the next (fingers left) or previous (fingers right) workspace, sliding there. Letting go sooner puts the workspace back.
 - The workspace does not follow your fingers. Hyprland's built-in live swipe can't fade and a Lua gesture can't share the four finger swipe with it, so this uses a Lua gesture and unsets the stock one from `input.lua`.
 
