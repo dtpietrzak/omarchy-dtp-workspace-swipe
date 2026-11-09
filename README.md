@@ -2,6 +2,8 @@
 
 A four finger swipe between workspaces on Omarchy (Hyprland 0.56+), with a fade.
 
+![A window at 50% opacity, as it is at the swipe's commit point](screenshots/workspace-swipe.png)
+
 - The current workspace fades from 100% to 95% over the first 7.5% of the screen width, then drops to 50% at 7.5%.
 - Letting go at 7.5% or more switches to the next (fingers left) or previous (fingers right) workspace, sliding there. Letting go sooner puts the workspace back.
 - It does not wrap. Swiping forward past your last workspace opens the next empty one (unless the current one is already empty). Swiping back from the first one stays put.
