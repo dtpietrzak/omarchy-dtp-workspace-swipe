@@ -1,39 +1,19 @@
 -- Four finger swipe between workspaces, using Hyprland's own live swipe.
 --
--- The workspace follows your fingers and fades as it goes (slidefade). The swipe
--- is sized so the commit point sits exactly halfway through it, which is where
--- the workspace is half faded. So half faded means "let go and it switches",
--- and anything lighter means "let go and it snaps back".
+-- The workspace follows your fingers and the swipe commits once it has slid
+-- COMMIT of the screen width. Let go sooner and it snaps back.
 --
--- The commit point is COMMIT of the screen width of finger travel.
+-- Hyprland's live swipe only moves the workspace. It never changes opacity, so
+-- there is no fade here. (A Lua gesture could fade, but it can't share the
+-- four finger swipe with the built-in one, so it would lose the live slide.)
 
-local COMMIT = 0.15 -- share of the screen width that commits the swipe
-local SENSITIVITY = 1.0 -- touchpad delta units per pixel; raise if it takes too much travel
+local COMMIT = 0.15 -- share of the screen width the workspace must slide to commit
 
--- The commit is reached at half of the swipe, so the whole swipe is twice that.
-local function apply()
-  local monitor = hl.get_active_monitor()
-  local width = 1920
-  if monitor then
-    local scale = (monitor.scale and monitor.scale > 0) and monitor.scale or 1
-    width = monitor.width / scale
-    if (monitor.transform or 0) % 2 == 1 then
-      width = monitor.height / scale
-    end
-  end
-
-  hl.config({
-    gestures = {
-      workspace_swipe_distance = math.floor(2 * COMMIT * width / SENSITIVITY),
-      workspace_swipe_cancel_ratio = 0.5,
-    },
-  })
-end
+hl.config({
+  gestures = {
+    workspace_swipe_cancel_ratio = COMMIT,
+  },
+})
 
 -- Omarchy turns the workspace animation off. The swipe needs it to show anything.
-hl.animation({ leaf = "workspaces", enabled = true, speed = 4, bezier = "easeOutQuint", style = "slidefade 100%" })
-
-apply()
-hl.on("monitor.added", apply)
-hl.on("monitor.removed", apply)
-hl.on("monitor.layout_changed", apply)
+hl.animation({ leaf = "workspaces", enabled = true, speed = 4, bezier = "easeOutQuint", style = "slide" })

@@ -2,13 +2,13 @@
 
 A better four finger swipe between workspaces on Omarchy (Hyprland 0.56+).
 
-- The workspace follows your fingers and fades as it goes (Hyprland's `slidefade`).
-- The swipe is sized so the commit point, 15% of the screen width of finger travel, falls exactly halfway through it. That is where the workspace is half faded. Half faded means letting go switches; lighter means letting go snaps back.
+- The workspace follows your fingers (Hyprland's live swipe) and commits once it has slid 15% of the screen width. Let go sooner and it snaps back. Stock Hyprland needs 50%.
 - Fingers moving left go to the next workspace, right to the previous.
+- There is no fade: Hyprland's live swipe only moves the workspace, and a Lua gesture that could fade can't share the four finger swipe with it.
 
-It uses the stock four finger `workspace` gesture from `input.lua`. This only turns the workspace animation back on (Omarchy disables it) and sets `workspace_swipe_distance` and `workspace_swipe_cancel_ratio`. A quick flick can still commit early because of Hyprland's `workspace_swipe_min_speed_to_force`.
+It uses the stock four finger `workspace` gesture from `input.lua`. This only turns the workspace animation back on (Omarchy disables it) and sets `workspace_swipe_cancel_ratio`. A quick flick can still commit early because of Hyprland's `workspace_swipe_min_speed_to_force`.
 
-Tuning is at the top of `hypr/workspace-swipe.lua`: `COMMIT` and `SENSITIVITY`. Distance is in touchpad delta units against the screen width, so raise `SENSITIVITY` if it takes too much finger travel.
+Tuning is `COMMIT` at the top of `hypr/workspace-swipe.lua`. Finger travel per screen is Hyprland's `workspace_swipe_distance`.
 
 ## Install
 
